@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>REST APIs: interactive notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#eef2f5;--surface:#fff;--ink:#14232e;--muted:#566873;--line:#d3dde4;--accent:#0b6e8a;--accent-ink:#fff;--ok:#1c7a4a;--warn:#a56200;--bad:#b3261e;--code-bg:#0f2230;--code-ink:#d6e7f0;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1a22;--surface:#15262f;--ink:#e6eef3;--muted:#9bb0bc;--line:#26404d;--accent:#5cc3df;--accent-ink:#06222c;--ok:#5fd08f;--warn:#e8b04a;--bad:#ff8a80;--code-bg:#0a141a;--code-ink:#d6e7f0;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1a22;--surface:#15262f;--ink:#e6eef3;--muted:#9bb0bc;--line:#26404d;--accent:#5cc3df;--accent-ink:#06222c;--ok:#5fd08f;--warn:#e8b04a;--bad:#ff8a80;--code-bg:#0a141a;--code-ink:#d6e7f0;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "IBM Plex Sans",system-ui,sans-serif}
+code,pre,.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 48px}
+header{padding:28px 0 8px}
+h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.15;margin:0 0 6px;font-weight:600}
+.sub{color:var(--muted);margin:0 0 14px;max-width:60ch}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.pl{font-size:.85rem;color:var(--muted);margin-top:6px}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:10px 0;display:flex;gap:6px;overflow-x:auto;border-bottom:1px solid var(--line)}
+nav button{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:999px;font:inherit;font-size:.88rem;cursor:pointer}
+nav button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+nav button.done::after{content:" ✓"}
+section{display:none;padding-top:20px}
+section.on{display:block}
+h2{font-size:1.45rem;margin:0 0 8px}
+h3{font-size:1.05rem;margin:22px 0 6px}
+p{margin:0 0 12px;max-width:68ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;margin:14px 0}
+.tip{border-left:4px solid var(--accent);background:var(--surface);padding:10px 14px;margin:14px 0;border-radius:0 8px 8px 0}
+pre{background:var(--code-bg);color:var(--code-ink);padding:14px;border-radius:8px;overflow-x:auto;font-size:.85rem;line-height:1.5;margin:10px 0}
+code{background:var(--line);padding:1px 5px;border-radius:4px;font-size:.88em}
+pre code{background:none;padding:0}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:8px;font:500 .9rem "IBM Plex Mono",monospace;cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chip:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.g2{color:var(--ok)}.g3{color:var(--accent)}.g4{color:var(--warn)}.g5{color:var(--bad)}
+.k{cursor:pointer;border-bottom:2px dotted var(--accent)}
+.k.on{background:rgba(92,195,223,.25)}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+td,th{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.scroll{overflow-x:auto}
+.foot{display:flex;justify-content:space-between;gap:8px;margin-top:28px;flex-wrap:wrap}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);padding:8px 16px;border-radius:8px;font:500 .95rem "IBM Plex Sans",sans-serif;cursor:pointer}
+.btn.alt{background:transparent;color:var(--accent)}
+.pg{display:grid;grid-template-columns:1fr;gap:10px}
+.pg label{font-size:.85rem;color:var(--muted)}
+.pg input,.pg select,.pg textarea{width:100%;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font:.9rem "IBM Plex Mono",monospace}
+.line{display:grid;grid-template-columns:110px 1fr;gap:8px}
+.badge{display:inline-block;padding:2px 10px;border-radius:6px;font:500 .9rem "IBM Plex Mono",monospace;border:1px solid currentColor}
+.opt{display:block;width:100%;text-align:left;margin:6px 0;padding:10px 12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;font:inherit;cursor:pointer}
+.opt.right{border-color:var(--ok);background:rgba(40,160,100,.15)}
+.opt.wrong{border-color:var(--bad);background:rgba(220,60,50,.13)}
+.muted{color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>REST APIs: interactive notes</h1>
+<p class="sub">Nine short lessons for beginners. Click, send requests and take the quiz. Mark each lesson done to track progress.</p>
+<div class="bar"><i id="bar"></i></div>
+<div class="pl" id="pl"></div>
+</header>
+<nav id="nav" aria-label="Lessons"></nav>
+
+<section id="basics" data-t="What is REST?">
+<h2>What is a REST API?</h2>
+<p>An <b>API</b> lets one program talk to another. A <b>REST API</b> does this over HTTP, the same protocol your browser uses. Everything is a <b>resource</b> (a user, a book, an order) with its own URL, and you act on it with standard HTTP methods.</p>
+<div class="card">
+<b>Restaurant analogy.</b> Click a role.
+<div class="row" id="rest-roles"></div>
+<p id="rest-out" class="muted" style="margin:0">Pick a role to see what it does.</p>
+</div>
+<h3>The request and response cycle</h3>
+<pre><code>CLIENT                              SERVER
+  | GET /users/42  ------------------> |
+  |                     finds user 42  |
+  | <------ 200 OK {"name":"Asha"}     |</code></pre>
+<p>Every interaction is one request followed by one response.</p>
+</section>
+
+<section id="request" data-t="Anatomy">
+<h2>Anatomy of a request</h2>
+<p>Click the underlined parts of this request to see what each one does.</p>
+<pre><code><span class="k" data-k="method">POST</span> <span class="k" data-k="url">https://api.example.com/v1/users?notify=true</span> HTTP/1.1
+<span class="k" data-k="headers">Content-Type: application/json
+Authorization: Bearer abc123</span>
+
+<span class="k" data-k="body">{ "name": "Asha", "email": "asha@example.com" }</span></code></pre>
+<div class="tip" id="anat">Select a part above.</div>
+<h3>Breaking down a URL</h3>
+<table><tbody>
+<tr><td><code>https://</code></td><td>Scheme. Always prefer HTTPS.</td></tr>
+<tr><td><code>api.example.com</code></td><td>Host: the server.</td></tr>
+<tr><td><code>/v1</code></td><td>API version, so old clients keep working.</td></tr>
+<tr><td><code>/users/42</code></td><td>Path: the resource.</td></tr>
+<tr><td><code>?status=shipped&amp;limit=10</code></td><td>Query: filters, sorting, paging.</td></tr>
+</tbody></table>
+</section>
+
+<section id="methods" data-t="Methods">
+<h2>HTTP methods</h2>
+<p>The method is the verb. The URL is the noun. Pick a method.</p>
+<div class="row" id="mrow"></div>
+<div class="card" id="mout"></div>
+</section>
+
+<section id="status" data-t="Status codes">
+<h2>Status codes</h2>
+<p>Every response starts with a three-digit code. Memory trick: <b class="g2">2xx</b> worked, <b class="g4">4xx</b> you made a mistake, <b class="g5">5xx</b> the server did.</p>
+<div class="row" id="srow"></div>
+<div class="card" id="sout">Pick a code.</div>
+<div class="tip"><b>401 vs 403:</b> 401 means “I don’t know who you are.” 403 means “I know who you are, but you can’t do this.”</div>
+</section>
+
+<section id="json" data-t="JSON">
+<h2>JSON: the data format</h2>
+<p>Most REST APIs send and receive JSON, a lightweight text format built from key/value pairs.</p>
+<pre><code>{
+  "id": 42,
+  "name": "Asha",
+  "isActive": true,
+  "roles": ["admin", "editor"],
+  "address": { "city": "Bengaluru", "country": "India" },
+  "manager": null
+}</code></pre>
+<p>Types: string, number, boolean, <code>null</code>, array <code>[]</code>, object <code>{}</code>. Try it: type JSON below to check if it is valid.</p>
+<div class="pg"><textarea id="jin" rows="4" aria-label="JSON input">{"name": "Asha", "age": 25}</textarea></div>
+<p id="jout" style="margin-top:8px"></p>
+</section>
+
+<section id="playground" data-t="Playground">
+<h2>API playground</h2>
+<p>A tiny Books API runs inside this page. Send real-looking requests and read the responses. Nothing leaves your browser.</p>
+<div class="row" id="presets"></div>
+<div class="card pg">
+<div class="line"><div><label for="pm">Method</label><select id="pm"><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option></select></div>
+<div><label for="pp">Path</label><input id="pp" value="/books" autocomplete="off" spellcheck="false"></div></div>
+<div><label for="pb">Body (JSON, for POST, PUT, PATCH)</label><textarea id="pb" rows="3" spellcheck="false"></textarea></div>
+<div><button class="btn" id="send">Send request</button> <button class="btn alt" id="reset">Reset data</button></div>
+</div>
+<div class="card"><div id="pstat" class="muted">No response yet.</div><pre id="pres" style="display:none"></pre></div>
+<div class="tip">Try this: create a book, fetch it, delete it, then fetch it again to see a <code>404</code>. Send a POST without a title to get a <code>400</code>.</div>
+</section>
+
+<section id="principles" data-t="Principles">
+<h2>The six REST principles</h2>
+<p>Open each one.</p>
+<div id="pr"></div>
+</section>
+
+<section id="design" data-t="Good design">
+<h2>Designing good endpoints</h2>
+<p>Use plural nouns. Let the method carry the verb.</p>
+<div class="card scroll"><table><tbody>
+<tr><td class="g2">✓ <code>GET /books</code></td><td class="g5">✗ <code>GET /getAllBooks</code></td></tr>
+<tr><td class="g2">✓ <code>POST /books</code></td><td class="g5">✗ <code>POST /createBook</code></td></tr>
+<tr><td class="g2">✓ <code>DELETE /books/5</code></td><td class="g5">✗ <code>POST /deleteBook/5</code></td></tr>
+<tr><td class="g2">✓ <code>GET /authors/3/books</code></td><td class="g5">✗ <code>GET /booksByAuthor?id=3</code></td></tr>
+</tbody></table></div>
+<h3>Build a query</h3>
+<p>Tick options to build a list URL.</p>
+<div class="card">
+<label><input type="checkbox" class="qb" data-q="author=Cal%20Newport"> filter by author</label><br>
+<label><input type="checkbox" class="qb" data-q="sort=title&amp;order=asc"> sort by title</label><br>
+<label><input type="checkbox" class="qb" data-q="page=2&amp;limit=20"> page 2, 20 per page</label><br>
+<label><input type="checkbox" class="qb" data-q="fields=id,title"> only id and title</label>
+<pre id="qurl" style="margin-bottom:0"><code>GET /v1/books</code></pre>
+</div>
+<div class="tip"><b>Always paginate.</b> Never return a million records in one response. Also validate input on the server, rate-limit with <code>429</code>, and document with OpenAPI/Swagger.</div>
+</section>
+
+<section id="auth" data-t="Auth">
+<h2>Authentication and authorization</h2>
+<p><b>Authentication</b> is who you are. <b>Authorization</b> is what you may do. Pick a method.</p>
+<div class="row" id="arow"></div>
+<div class="card" id="aout"></div>
+<p class="muted">Always use HTTPS and never put secrets in URLs.</p>
+</section>
+
+<section id="quiz" data-t="Quiz">
+<h2>Quiz</h2>
+<p>Six questions. Click an answer.</p>
+<div id="qz"></div>
+<div class="card" id="qres" style="display:none"></div>
+<button class="btn alt" id="qre" style="display:none">Try again</button>
+</section>
+
+<div class="foot"><button class="btn alt" id="prev">Back</button><button class="btn alt" id="done">Mark as done</button><button class="btn" id="next">Next</button></div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+let doneSet=new Set();
+try{doneSet=new Set(JSON.parse(localStorage.getItem("restnotes")||"[]"))}catch(e){}
+const save=()=>{try{localStorage.setItem("restnotes",JSON.stringify([...doneSet]))}catch(e){}};
+const secs=$$("section");const ids=secs.map(s=>s.id);
+let cur=0;
+
+/* nav */
+const nav=$("#nav");
+secs.forEach((s,i)=>{const b=document.createElement("button");b.textContent=s.dataset.t;b.onclick=()=>go(i);nav.appendChild(b)});
+function go(i,noHash){
+  cur=Math.max(0,Math.min(ids.length-1,i));
+  secs.forEach((s,j)=>s.classList.toggle("on",j===cur));
+  [...nav.children].forEach((b,j)=>{b.classList.toggle("on",j===cur);b.classList.toggle("done",doneSet.has(ids[j]))});
+  $("#done").textContent=doneSet.has(ids[cur])?"Done ✓ (undo)":"Mark as done";
+  $("#prev").style.visibility=cur?"visible":"hidden";
+  $("#next").style.visibility=cur<ids.length-1?"visible":"hidden";
+  const n=doneSet.size;$("#bar").style.width=(n/ids.length*100)+"%";
+  $("#pl").textContent=n+" of "+ids.length+" lessons done";
+  if(!noHash){try{history.replaceState(null,"","#"+ids[cur])}catch(e){}}
+  window.scrollTo(0,0);
+}
+$("#prev").onclick=()=>go(cur-1);$("#next").onclick=()=>go(cur+1);
+$("#done").onclick=()=>{const id=ids[cur];doneSet.has(id)?doneSet.delete(id):doneSet.add(id);save();go(cur,true);if(doneSet.has(id)&&cur<ids.length-1)go(cur+1)};
+
+/* generic picker */
+function picker(rowSel,outSel,items,render,cls){
+  const row=$(rowSel),out=$(outSel);
+  items.forEach((it,i)=>{const b=document.createElement("button");b.className="chip "+(cls?cls(it):"");b.textContent=it.label;
+    b.onclick=()=>{[...row.children].forEach(c=>c.classList.remove("on"));b.classList.add("on");out.innerHTML=render(it)};row.appendChild(b)});
+  return ()=>row.children[0].click();
+}
+
+/* basics */
+picker("#rest-roles","#rest-out",[
+ {label:"Client",t:"The app or browser that asks for things. You, sitting at the table."},
+ {label:"API",t:"The waiter. Carries your request to the server and brings the response back, following a fixed menu of URLs and methods."},
+ {label:"Server",t:"The kitchen. Holds the data and logic, and does the real work."},
+ {label:"Resource",t:"A dish on the menu: one thing with its own URL, like /books/1."}
+],i=>"<b>"+i.label+".</b> "+i.t)();
+
+/* anatomy */
+const anat={method:"<b>Method.</b> The action. POST means create something new.",url:"<b>URL.</b> Which resource, plus the version (v1) and optional query parameters after the ?.",headers:"<b>Headers.</b> Metadata: the data format (Content-Type) and your credentials (Authorization).",body:"<b>Body.</b> The data you send, usually JSON. Used with POST, PUT and PATCH."};
+$$(".k").forEach(k=>k.onclick=()=>{$$(".k").forEach(x=>x.classList.remove("on"));k.classList.add("on");$("#anat").innerHTML=anat[k.dataset.k]});
+
+/* methods */
+const M=[
+{label:"GET",a:"Read",e:"GET /users/42",s:"Safe: yes. Idempotent: yes.",n:"Fetches data and never changes it. Returns 200 OK."},
+{label:"POST",a:"Create",e:"POST /users  + body",s:"Safe: no. Idempotent: no.",n:"Creates a new resource. Send it twice and you may get two. Returns 201 Created."},
+{label:"PUT",a:"Replace",e:"PUT /users/42  + full body",s:"Safe: no. Idempotent: yes.",n:"Replaces the whole resource. Fields you leave out may be wiped."},
+{label:"PATCH",a:"Partial update",e:"PATCH /users/42  + {\"name\":\"New\"}",s:"Safe: no. Idempotent: usually.",n:"Changes only the fields you send."},
+{label:"DELETE",a:"Delete",e:"DELETE /users/42",s:"Safe: no. Idempotent: yes.",n:"Removes the resource. Returns 204 No Content."}];
+picker("#mrow","#mout",M,m=>"<b>"+m.label+": "+m.a+"</b><pre><code>"+esc(m.e)+"</code></pre><p>"+m.n+"</p><p class='muted' style='margin:0'>"+m.s+"</p>");
+$("#mout").innerHTML="Pick a method above.";
+
+/* status */
+const S=[[200,"OK","Request worked and the response has data."],[201,"Created","A new resource was created (after POST)."],[204,"No Content","Worked, nothing to return (after DELETE)."],[301,"Moved Permanently","The URL has changed; follow the new one."],[304,"Not Modified","Your cached copy is still current."],[400,"Bad Request","Malformed or invalid input, like a missing field."],[401,"Unauthorized","Not logged in, or the token is missing or invalid."],[403,"Forbidden","Logged in, but not allowed to do this."],[404,"Not Found","That resource does not exist."],[409,"Conflict","Clashes with current state, like a duplicate email."],[429,"Too Many Requests","You hit the rate limit. Slow down."],[500,"Internal Server Error","Something broke on the server."],[503,"Service Unavailable","Server is down or overloaded. Try later."]]
+.map(x=>({label:String(x[0]),code:x[0],name:x[1],d:x[2]}));
+picker("#srow","#sout",S,s=>"<span class='badge g"+String(s.code)[0]+"'>"+s.code+" "+s.name+"</span><p style='margin:10px 0 0'>"+s.d+"</p>",s=>"g"+String(s.code)[0]);
+
+/* json validator */
+function jv(){const v=$("#jin").value;const o=$("#jout");try{const j=JSON.parse(v);o.innerHTML="<span class='g2'>✓ Valid JSON.</span> Type: "+(Array.isArray(j)?"array":typeof j)}catch(e){o.innerHTML="<span class='g5'>✗ Invalid:</span> "+esc(e.message)+" <span class='muted'>(keys need double quotes; no trailing commas)</span>"}}
+$("#jin").oninput=jv;jv();
+
+/* playground */
+const seed=()=>({books:[{id:1,title:"Atomic Habits",author:"James Clear"},{id:2,title:"Deep Work",author:"Cal Newport"}],next:3});
+let db=seed();
+function api(m,p,raw){
+  const parts=p.split("?")[0].split("/").filter(Boolean);
+  if(parts[0]!=="books"||parts.length>2)return[404,{error:"Unknown path "+p}];
+  let body=null;
+  if(["POST","PUT","PATCH"].includes(m)){try{body=JSON.parse(raw||"")}catch(e){return[400,{error:"Body is not valid JSON"}]}}
+  if(parts.length===1){
+    if(m==="GET")return[200,db.books];
+    if(m==="POST"){if(!body.title)return[400,{error:"title is required"}];const b={id:db.next++,title:body.title,author:body.author||""};db.books.push(b);return[201,b]}
+    return[405,{error:m+" not allowed on /books"}];
+  }
+  const id=parseInt(parts[1],10),b=db.books.find(x=>x.id===id);
+  if(!b)return[404,{error:"Book with id "+parts[1]+" not found"}];
+  if(m==="GET")return[200,b];
+  if(m==="PATCH"){Object.assign(b,body,{id});return[200,b]}
+  if(m==="PUT"){if(!body.title)return[400,{error:"title is required for PUT"}];const n={id,title:body.title,author:body.author||""};db.books[db.books.indexOf(b)]=n;return[200,n]}
+  if(m==="DELETE"){db.books=db.books.filter(x=>x.id!==id);return[204,null]}
+  return[405,{error:m+" not allowed"}];
+}
+const P=[["List books","GET","/books",""],["Get book 1","GET","/books/1",""],["Create book","POST","/books",'{"title":"Clean Code","author":"Robert Martin"}'],["Rename book 1","PATCH","/books/1",'{"title":"Atomic Habits 2nd Ed."}'],["Delete book 1","DELETE","/books/1",""],["Missing book","GET","/books/999",""],["Bad create","POST","/books",'{"author":"No title"}']];
+P.forEach(p=>{const b=document.createElement("button");b.className="chip";b.textContent=p[0];b.onclick=()=>{$("#pm").value=p[1];$("#pp").value=p[2];$("#pb").value=p[3]};$("#presets").appendChild(b)});
+const reason={200:"OK",201:"Created",204:"No Content",400:"Bad Request",404:"Not Found",405:"Method Not Allowed"};
+$("#send").onclick=()=>{
+  const m=$("#pm").value,p=$("#pp").value.trim();const [c,d]=api(m,p,$("#pb").value);
+  $("#pstat").innerHTML=esc(m+" "+p)+" → <span class='badge g"+String(c)[0]+"'>"+c+" "+reason[c]+"</span>";
+  const pre=$("#pres");pre.style.display="block";pre.textContent=d===null?"(empty body)":JSON.stringify(d,null,2);
+};
+$("#reset").onclick=()=>{db=seed();$("#pstat").textContent="Data reset to two books.";$("#pres").style.display="none"};
+
+/* principles */
+const PR=[["Client-server separation","Frontend and backend evolve independently. A phone app and a website can use the same API."],["Stateless","Each request carries everything the server needs, such as your token. The server keeps no memory between requests, which makes scaling easy."],["Uniform interface","Consistent URLs, standard methods and standard status codes, so any developer can predict how it behaves."],["Resource-based","You work with nouns (/books), not actions (/getBooks)."],["Cacheable","Responses can say whether they may be cached, so repeat requests are faster."],["Layered system","Proxies, load balancers and gateways can sit in between. The client does not need to know."]];
+PR.forEach(x=>{const d=document.createElement("details");d.className="card";d.innerHTML="<summary><b>"+x[0]+"</b></summary><p style='margin:8px 0 0'>"+x[1]+"</p>";$("#pr").appendChild(d)});
+
+/* query builder */
+function qb(){const q=$$(".qb").filter(c=>c.checked).map(c=>c.dataset.q).join("&amp;");$("#qurl").innerHTML="<code>GET /v1/books"+(q?"?"+q:"")+"</code>"}
+$$(".qb").forEach(c=>c.onchange=qb);
+
+/* auth */
+const A=[{label:"API key",t:"A secret string in a header, like X-API-Key: abc123. Simple, good for server-to-server calls.",c:"X-API-Key: abc123"},{label:"Basic auth",t:"Username and password, base64-encoded. Only safe over HTTPS.",c:"Authorization: Basic YXNoYTpzZWNyZXQ="},{label:"Bearer / JWT",t:"Log in once with POST /auth/login, receive a token, then send it on every request.",c:"Authorization: Bearer eyJhbGciOi..."},{label:"OAuth 2.0",t:"Powers “Log in with Google”. Gives a third-party app limited access without sharing your password.",c:"Authorization: Bearer <access_token>"}];
+picker("#arow","#aout",A,a=>"<p>"+a.t+"</p><pre style='margin-bottom:0'><code>"+esc(a.c)+"</code></pre>")();
+
+/* quiz */
+const Q=[["Which method creates a new resource?",["GET","POST","DELETE","PATCH"],1,"POST creates. GET reads, DELETE removes, PATCH edits part of a resource."],["Which URL follows REST naming conventions?",["/getAllBooks","/books/getAll","/books","/Book_List"],2,"Use plural nouns. The HTTP method supplies the verb."],["The server replies 404. What happened?",["Server crashed","You are not logged in","Resource not found","Rate limit hit"],2,"404 means the resource does not exist. 500 is a crash, 401 is login, 429 is rate limit."],["What does “stateless” mean?",["No database is used","Each request has all the info needed","The API has no errors","Responses are never cached"],1,"The server does not remember earlier requests, so each one carries what it needs."],["PUT versus PATCH?",["PUT replaces fully, PATCH changes part","They are identical","PATCH deletes","PUT only reads"],0,"PUT sends the whole resource, PATCH only the changed fields."],["You are logged in but cannot delete another user’s account. Which code?",["401","403","404","500"],1,"403 Forbidden: the server knows who you are but you lack permission."]];
+let score=0,ans=0;
+function quiz(){score=0;ans=0;$("#qres").style.display="none";$("#qre").style.display="none";const z=$("#qz");z.innerHTML="";
+ Q.forEach((q,qi)=>{const c=document.createElement("div");c.className="card";c.innerHTML="<b>"+(qi+1)+". "+q[0]+"</b>";
+  const fb=document.createElement("p");fb.className="muted";fb.style.margin="8px 0 0";
+  q[1].forEach((o,oi)=>{const b=document.createElement("button");b.className="opt";b.textContent=o;
+   b.onclick=()=>{if(c.dataset.a)return;c.dataset.a=1;ans++;const ok=oi===q[2];if(ok)score++;
+    b.classList.add(ok?"right":"wrong");if(!ok)c.querySelectorAll(".opt")[q[2]].classList.add("right");
+    fb.textContent=(ok?"Correct. ":"Not quite. ")+q[3];
+    if(ans===Q.length){const r=$("#qres");r.style.display="block";r.innerHTML="<b>Score: "+score+" / "+Q.length+"</b><p style='margin:6px 0 0'>"+(score>=5?"Excellent. Try building your own API next.":score>=3?"Good start. Revisit the lessons you missed.":"Keep going. Reread the lessons and try again.")+"</p>";$("#qre").style.display="inline-block"}};
+   c.appendChild(b)});c.appendChild(fb);z.appendChild(c)})}
+$("#qre").onclick=quiz;quiz();
+
+/* start */
+const h=(location.hash||"").slice(1);go(Math.max(0,ids.indexOf(h)),true);
+</script>
+</body>
+</html>

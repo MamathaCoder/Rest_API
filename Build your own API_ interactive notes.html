@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Build your own API: interactive notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#eef2f5;--surface:#fff;--ink:#14232e;--muted:#566873;--line:#d3dde4;--accent:#0b6e8a;--accent-ink:#fff;--ok:#1c7a4a;--warn:#a56200;--bad:#b3261e;--code-bg:#0f2230;--code-ink:#d6e7f0;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1a22;--surface:#15262f;--ink:#e6eef3;--muted:#9bb0bc;--line:#26404d;--accent:#5cc3df;--accent-ink:#06222c;--ok:#5fd08f;--warn:#e8b04a;--bad:#ff8a80;--code-bg:#0a141a;--code-ink:#d6e7f0;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1a22;--surface:#15262f;--ink:#e6eef3;--muted:#9bb0bc;--line:#26404d;--accent:#5cc3df;--accent-ink:#06222c;--ok:#5fd08f;--warn:#e8b04a;--bad:#ff8a80;--code-bg:#0a141a;--code-ink:#d6e7f0;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "IBM Plex Sans",system-ui,sans-serif}
+code,pre,.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 48px}
+header{padding:28px 0 8px}
+h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.15;margin:0 0 6px;font-weight:600}
+.sub{color:var(--muted);margin:0 0 14px;max-width:60ch}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.pl{font-size:.85rem;color:var(--muted);margin-top:6px}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:10px 0;display:flex;gap:6px;overflow-x:auto;border-bottom:1px solid var(--line)}
+nav button{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:999px;font:inherit;font-size:.88rem;cursor:pointer}
+nav button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+nav button.done::after{content:" ✓"}
+section{display:none;padding-top:20px}
+section.on{display:block}
+h2{font-size:1.45rem;margin:0 0 8px}
+h3{font-size:1.05rem;margin:22px 0 6px}
+p{margin:0 0 12px;max-width:68ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;margin:14px 0}
+.tip{border-left:4px solid var(--accent);background:var(--surface);padding:10px 14px;margin:14px 0;border-radius:0 8px 8px 0}
+pre{background:var(--code-bg);color:var(--code-ink);padding:14px;border-radius:8px;overflow-x:auto;font-size:.85rem;line-height:1.5;margin:10px 0}
+code{background:var(--line);padding:1px 5px;border-radius:4px;font-size:.88em}
+pre code{background:none;padding:0}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:8px;font:500 .9rem "IBM Plex Mono",monospace;cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chip:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.g2{color:var(--ok)}.g3{color:var(--accent)}.g4{color:var(--warn)}.g5{color:var(--bad)}
+.k{cursor:pointer;border-bottom:2px dotted var(--accent)}
+.k.on{background:rgba(92,195,223,.25)}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+td,th{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.scroll{overflow-x:auto}
+.foot{display:flex;justify-content:space-between;gap:8px;margin-top:28px;flex-wrap:wrap}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);padding:8px 16px;border-radius:8px;font:500 .95rem "IBM Plex Sans",sans-serif;cursor:pointer}
+.btn.alt{background:transparent;color:var(--accent)}
+.pg{display:grid;grid-template-columns:1fr;gap:10px}
+.pg label{font-size:.85rem;color:var(--muted)}
+.pg input,.pg select,.pg textarea{width:100%;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font:.9rem "IBM Plex Mono",monospace}
+.line{display:grid;grid-template-columns:110px 1fr;gap:8px}
+.badge{display:inline-block;padding:2px 10px;border-radius:6px;font:500 .9rem "IBM Plex Mono",monospace;border:1px solid currentColor}
+.opt{display:block;width:100%;text-align:left;margin:6px 0;padding:10px 12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;font:inherit;cursor:pointer}
+.opt.right{border-color:var(--ok);background:rgba(40,160,100,.15)}
+.opt.wrong{border-color:var(--bad);background:rgba(220,60,50,.13)}
+.muted{color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+.dots{display:flex;gap:8px;margin:8px 0}.dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--accent)}.dot.f{background:var(--accent)}
+.log{font:.85rem/1.6 "IBM Plex Mono",monospace;max-height:220px;overflow:auto}
+ul.ids{list-style:none;display:flex;flex-wrap:wrap;gap:6px;padding:0;margin:8px 0}ul.ids li{border:1px solid var(--line);background:var(--surface);padding:2px 10px;border-radius:6px;font:.9rem "IBM Plex Mono",monospace}ul.ids li.dup{border-color:var(--bad);color:var(--bad)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:560px){.two{grid-template-columns:1fr}}
+.tk{word-break:break-all;font:.85rem/1.5 "IBM Plex Mono",monospace}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Build your own API: interactive notes</h1>
+<p class="sub">Eight lessons for building a real Books API: code, SQL, validation, login, tests and deployment.</p>
+<div class="bar"><i id="bar"></i></div>
+<div class="pl" id="pl"></div>
+</header>
+<nav id="nav" aria-label="Lessons"></nav>
+
+
+
+<section id="plan" data-t="Project plan">
+<h2>The project: a Books API with logins</h2>
+<p>You will build one small API end to end. Each lesson here covers one step. Pick a step to see what it involves.</p>
+<div class="row" id="pl3"></div>
+<div class="card" id="pl3o">Pick a step.</div>
+<div class="tip">Build it in this order. A working API with five endpoints beats a perfect design that never runs.</div>
+</section>
+
+<section id="code" data-t="Code">
+<h2>Writing the routes</h2>
+<p>The same four endpoints in two popular stacks. Pick a stack and an endpoint.</p>
+<div class="row" id="stk"></div><div class="row" id="opr"></div>
+<pre id="cd3" style="margin-top:0"></pre>
+<div class="card" id="cs3"></div>
+</section>
+
+<section id="sql" data-t="SQL">
+<h2>Talking to the database</h2>
+<p>Each REST call turns into a SQL statement. Run these on a small <code>books</code> table and see the REST call each one matches.</p>
+<div class="row" id="sqr"></div>
+<div class="card"><pre id="sqt" style="margin-top:0">Pick a query.</pre><p id="sqr2" class="muted" style="margin:0 0 8px"></p><div class="scroll" id="sqo"></div>
+<button class="btn alt" id="sqx" style="margin-top:10px">Reset table</button></div>
+<h3>SQL injection</h3>
+<p>Never build SQL by gluing user text into a string. Search for a user and try the attack text.</p>
+<div class="card pg"><div><label for="sn">Name to search</label><input id="sn" value="Asha" autocomplete="off" spellcheck="false"></div>
+<label><input type="checkbox" id="su"> Use a parameterized query</label>
+<div class="row"><button class="chip" id="sa">Try: x' OR '1'='1</button></div>
+<pre id="so" style="margin:0"></pre><p id="sv3" style="margin:0"></p></div>
+</section>
+
+<section id="valid" data-t="Validation">
+<h2>Validating input</h2>
+<p>Never trust the client. Check every field and return <code>422</code> with clear messages. Rules for <code>POST /books</code>: <code>title</code> is required text up to 100 characters, <code>year</code> is an integer from 1450 to 2100, <code>rating</code> is a number from 0 to 5.</p>
+<div class="row" id="vp"></div>
+<div class="card pg"><textarea id="vi" rows="4" spellcheck="false" aria-label="Request body"></textarea><div><button class="btn" id="vs">POST /books</button></div></div>
+<div class="card"><div id="vst" class="muted">No response yet.</div><pre id="vr" style="display:none"></pre></div>
+</section>
+
+<section id="login" data-t="Login">
+<h2>Passwords and login</h2>
+<p>Never store passwords. Store a <b>salted hash</b>. Register the same password twice and see that the stored values differ.</p>
+<div class="card pg"><div><label for="pw">Password</label><input id="pw" value="hunter2" autocomplete="off"></div>
+<div><button class="btn" id="pr1">Register a user</button></div><pre id="pho" style="margin:0">Press Register twice.</pre></div>
+<p class="muted">Illustration only. Real code uses bcrypt or argon2 from a library, never a homemade hash.</p>
+<h3>The login flow</h3>
+<div class="row" id="lf"></div><div class="card" id="lfo">Pick a step.</div>
+</section>
+
+<section id="tests" data-t="Testing">
+<h2>Testing your API</h2>
+<p>Tests call your API and check the answers. Tick bugs to plant in the API, then run the tests and watch which ones catch them.</p>
+<div class="card"><div id="bugs"></div><div class="row"><button class="btn" id="tr">Run tests</button></div><div id="tres" class="log"></div></div>
+<pre><code>def test_missing_book_returns_404(client):
+    r = client.get("/books/999")
+    assert r.status_code == 404</code></pre>
+<div class="tip">Test the unhappy paths too: missing items, bad input, no token, wrong user.</div>
+</section>
+
+<section id="deploy" data-t="Deploy">
+<h2>Going live</h2>
+<p>Tick what you have done. A deployed API faces the whole internet.</p>
+<div class="card" id="dl"></div>
+<div class="card"><div class="bar"><i id="db3"></i></div><p id="dv" style="margin:10px 0 0"></p></div>
+<pre><code>FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
+<div class="tip">Hosts like Render, Railway and Fly.io deploy from a Git repo or a Dockerfile and give you HTTPS automatically.</div>
+</section>
+<section id="quiz" data-t="Quiz">
+<h2>Quiz</h2>
+<p>Six questions. Click an answer.</p>
+<div id="qz"></div>
+<div class="card" id="qres" style="display:none"></div>
+<button class="btn alt" id="qre" style="display:none">Try again</button>
+</section><div class="foot"><button class="btn alt" id="prev">Back</button><button class="btn alt" id="done">Mark as done</button><button class="btn" id="next">Next</button></div>
+</div>
+
+<script>const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+let doneSet=new Set();
+try{doneSet=new Set(JSON.parse(localStorage.getItem("restnotes3")||"[]"))}catch(e){}
+const save=()=>{try{localStorage.setItem("restnotes3",JSON.stringify([...doneSet]))}catch(e){}};
+const secs=$$("section");const ids=secs.map(s=>s.id);
+let cur=0;
+
+/* nav */
+const nav=$("#nav");
+secs.forEach((s,i)=>{const b=document.createElement("button");b.textContent=s.dataset.t;b.onclick=()=>go(i);nav.appendChild(b)});
+function go(i,noHash){
+  cur=Math.max(0,Math.min(ids.length-1,i));
+  secs.forEach((s,j)=>s.classList.toggle("on",j===cur));
+  [...nav.children].forEach((b,j)=>{b.classList.toggle("on",j===cur);b.classList.toggle("done",doneSet.has(ids[j]))});
+  $("#done").textContent=doneSet.has(ids[cur])?"Done ✓ (undo)":"Mark as done";
+  $("#prev").style.visibility=cur?"visible":"hidden";
+  $("#next").style.visibility=cur<ids.length-1?"visible":"hidden";
+  const n=doneSet.size;$("#bar").style.width=(n/ids.length*100)+"%";
+  $("#pl").textContent=n+" of "+ids.length+" lessons done";
+  if(!noHash){try{history.replaceState(null,"","#"+ids[cur])}catch(e){}}
+  window.scrollTo(0,0);
+}
+$("#prev").onclick=()=>go(cur-1);$("#next").onclick=()=>go(cur+1);
+$("#done").onclick=()=>{const id=ids[cur];doneSet.has(id)?doneSet.delete(id):doneSet.add(id);save();go(cur,true);if(doneSet.has(id)&&cur<ids.length-1)go(cur+1)};
+
+/* generic picker */
+function picker(rowSel,outSel,items,render,cls){
+  const row=$(rowSel),out=$(outSel);
+  items.forEach((it,i)=>{const b=document.createElement("button");b.className="chip "+(cls?cls(it):"");b.textContent=it.label;
+    b.onclick=()=>{[...row.children].forEach(c=>c.classList.remove("on"));b.classList.add("on");out.innerHTML=render(it)};row.appendChild(b)});
+  return ()=>row.children[0].click();
+}
+
+
+
+/* plan */
+picker("#pl3","#pl3o",[
+{label:"1 Design",t:"List resources and endpoints on paper: /books, /auth/login, /me."},
+{label:"2 Code",t:"Write the routes in FastAPI or Express, starting with GET /books."},
+{label:"3 Database",t:"Create a books table in SQLite or PostgreSQL and connect it."},
+{label:"4 Validate",t:"Reject bad input with 422 and clear messages."},
+{label:"5 Login",t:"Hash passwords, issue JWTs, protect routes."},
+{label:"6 Test",t:"Write automated tests for happy and unhappy paths."},
+{label:"7 Deploy",t:"Set secrets, turn off debug, and publish over HTTPS."}
+],i=>"<b>"+i.label+".</b> "+i.t);
+
+/* code */
+const CODE={
+FastAPI:{setup:"pip install fastapi uvicorn sqlalchemy\nuvicorn main:app --reload",note:"FastAPI builds interactive docs for free at <code>/docs</code>, and validates input from your type hints.",
+ List:'@app.get("/books")\ndef list_books(limit: int = 10, offset: int = 0):\n    return db.query(Book).offset(offset).limit(limit).all()',
+ Create:'class BookIn(BaseModel):\n    title: str = Field(max_length=100)\n    author: str | None = None\n\n@app.post("/books", status_code=201)\ndef create_book(data: BookIn):\n    book = Book(**data.model_dump())\n    db.add(book); db.commit()\n    return book',
+ "Get one":'@app.get("/books/{book_id}")\ndef get_book(book_id: int):\n    book = db.get(Book, book_id)\n    if not book:\n        raise HTTPException(404, "Book not found")\n    return book',
+ Delete:'@app.delete("/books/{book_id}", status_code=204)\ndef delete_book(book_id: int):\n    book = db.get(Book, book_id)\n    if not book:\n        raise HTTPException(404, "Book not found")\n    db.delete(book); db.commit()'},
+Express:{setup:"npm init -y\nnpm i express pg\nnode server.js",note:"Express is minimal. You add validation yourself, with a library like zod or joi.",
+ List:'app.get("/books", async (req, res) => {\n  const { limit = 10, offset = 0 } = req.query;\n  const { rows } = await db.query(\n    "SELECT * FROM books LIMIT $1 OFFSET $2", [limit, offset]);\n  res.json(rows);\n});',
+ Create:'app.post("/books", async (req, res) => {\n  const { title, author } = req.body;\n  if (!title) return res.status(422).json({ error: "title required" });\n  const { rows } = await db.query(\n    "INSERT INTO books (title, author) VALUES ($1, $2) RETURNING *",\n    [title, author]);\n  res.status(201).json(rows[0]);\n});',
+ "Get one":'app.get("/books/:id", async (req, res) => {\n  const { rows } = await db.query(\n    "SELECT * FROM books WHERE id = $1", [req.params.id]);\n  if (!rows.length) return res.status(404).json({ error: "Book not found" });\n  res.json(rows[0]);\n});',
+ Delete:'app.delete("/books/:id", async (req, res) => {\n  const r = await db.query("DELETE FROM books WHERE id = $1", [req.params.id]);\n  if (!r.rowCount) return res.status(404).json({ error: "Book not found" });\n  res.status(204).end();\n});'}};
+let sk="FastAPI",op="List";
+function rc(){$("#cd3").textContent=CODE[sk][op];$("#cs3").innerHTML="<b>Setup</b><pre style='margin:6px 0'>"+esc(CODE[sk].setup)+"</pre>"+CODE[sk].note;
+ [...$("#stk").children].forEach(c=>c.classList.toggle("on",c.textContent===sk));[...$("#opr").children].forEach(c=>c.classList.toggle("on",c.textContent===op))}
+Object.keys(CODE).forEach(k=>{const b=document.createElement("button");b.className="chip";b.textContent=k;b.onclick=()=>{sk=k;rc()};$("#stk").appendChild(b)});
+["List","Create","Get one","Delete"].forEach(k=>{const b=document.createElement("button");b.className="chip";b.textContent=k;b.onclick=()=>{op=k;rc()};$("#opr").appendChild(b)});
+rc();
+
+/* sql */
+const seed3=()=>[{id:1,title:"Atomic Habits",author:"James Clear",year:2018,rating:4.8},{id:2,title:"Deep Work",author:"Cal Newport",year:2016,rating:4.5},{id:3,title:"Dune",author:"Frank Herbert",year:1965,rating:4.6},{id:4,title:"The Pragmatic Programmer",author:"Hunt and Thomas",year:1999,rating:4.4}];
+let bk=seed3();
+const SQ=[
+{l:"Select all",sql:"SELECT * FROM books;",rest:"GET /books",run:()=>({rows:bk})},
+{l:"Where id",sql:"SELECT * FROM books WHERE id = 2;",rest:"GET /books/2",run:()=>({rows:bk.filter(b=>b.id===2)})},
+{l:"Filter and sort",sql:"SELECT * FROM books\nWHERE rating >= 4.5\nORDER BY year DESC;",rest:"GET /books?min_rating=4.5&sort=-year",run:()=>({rows:bk.filter(b=>b.rating>=4.5).sort((a,b)=>b.year-a.year)})},
+{l:"Limit/offset",sql:"SELECT * FROM books\nLIMIT 2 OFFSET 2;",rest:"GET /books?limit=2&offset=2",run:()=>({rows:bk.slice(2,4)})},
+{l:"Insert",sql:"INSERT INTO books (title, author, year, rating)\nVALUES ('Clean Code', 'Robert Martin', 2008, 4.4);",rest:"POST /books → 201",run:()=>{const id=Math.max(0,...bk.map(b=>b.id))+1;bk.push({id,title:"Clean Code",author:"Robert Martin",year:2008,rating:4.4});return{msg:"1 row inserted, new id "+id}}},
+{l:"Update",sql:"UPDATE books SET rating = 5 WHERE id = 1;",rest:"PATCH /books/1 → 200",run:()=>{const b=bk.find(x=>x.id===1);if(!b)return{msg:"0 rows affected (the API would return 404)"};b.rating=5;return{msg:"1 row updated"}}},
+{l:"Delete",sql:"DELETE FROM books WHERE id = 3;",rest:"DELETE /books/3 → 204",run:()=>{const n=bk.length;bk=bk.filter(b=>b.id!==3);return{msg:n===bk.length?"0 rows affected (the API would return 404)":"1 row deleted"}}}];
+function tbl(rows){if(!rows.length)return"<p class='muted'>No rows.</p>";const k=Object.keys(rows[0]);return"<table><thead><tr>"+k.map(c=>"<th>"+c+"</th>").join("")+"</tr></thead><tbody>"+rows.map(r=>"<tr>"+k.map(c=>"<td>"+esc(r[c])+"</td>").join("")+"</tr>").join("")+"</tbody></table>"}
+SQ.forEach(q=>{const b=document.createElement("button");b.className="chip";b.textContent=q.l;b.onclick=()=>{[...$("#sqr").children].forEach(c=>c.classList.remove("on"));b.classList.add("on");const r=q.run();$("#sqt").textContent=q.sql;$("#sqr2").innerHTML="REST equivalent: <code>"+esc(q.rest)+"</code>"+(r.msg?" · <b>"+r.msg+"</b>":"");$("#sqo").innerHTML=tbl(r.rows||bk)};$("#sqr").appendChild(b)});
+$("#sqx").onclick=()=>{bk=seed3();$("#sqt").textContent="Table reset.";$("#sqr2").textContent="";$("#sqo").innerHTML=tbl(bk)};
+function inj(){const v=$("#sn").value,safe=$("#su").checked;
+ if(safe){$("#so").textContent="SELECT * FROM users WHERE name = $1;\n-- $1 = "+JSON.stringify(v);$("#sv3").innerHTML="<span class='g2'>✓ Safe.</span> The text is treated as data, never as SQL."}
+ else{$("#so").textContent="SELECT * FROM users WHERE name = '"+v+"';";const bad=/'\s*or\s/i.test(v);$("#sv3").innerHTML=bad?"<span class='g5'>✗ Injected.</span> The condition is always true, so every user is returned.":"<span class='g4'>Works for normal input,</span> but it is unsafe. Try the attack text."}}
+$("#sn").oninput=inj;$("#su").onchange=inj;$("#sa").onclick=()=>{$("#sn").value="x' OR '1'='1";inj()};inj();
+
+/* validation */
+const VP=[["Valid",'{"title":"Dune","year":1965,"rating":4.6}'],["Missing title",'{"author":"Frank Herbert"}'],["Wrong type",'{"title":"Dune","year":"1965"}'],["Out of range",'{"title":"Dune","rating":9}'],["Broken JSON",'{"title": "Dune",}']];
+VP.forEach(p=>{const b=document.createElement("button");b.className="chip";b.textContent=p[0];b.onclick=()=>{$("#vi").value=p[1]};$("#vp").appendChild(b)});
+$("#vi").value=VP[1][1];
+function val(raw){let d;try{d=JSON.parse(raw)}catch(e){return[400,{error:"Body is not valid JSON"}]}
+ if(d===null||typeof d!=="object"||Array.isArray(d))return[400,{error:"Body must be a JSON object"}];
+ const er=[];
+ if(typeof d.title!=="string"||!d.title.trim())er.push({field:"title",message:"required, non-empty text"});else if(d.title.length>100)er.push({field:"title",message:"at most 100 characters"});
+ if("year" in d&&(!Number.isInteger(d.year)||d.year<1450||d.year>2100))er.push({field:"year",message:"integer from 1450 to 2100"});
+ if("rating" in d&&(typeof d.rating!=="number"||d.rating<0||d.rating>5))er.push({field:"rating",message:"number from 0 to 5"});
+ return er.length?[422,{errors:er}]:[201,{id:5,...d}]}
+$("#vs").onclick=()=>{const [c,d]=val($("#vi").value);$("#vst").innerHTML="POST /books → <span class='badge g"+String(c)[0]+"'>"+c+" "+({201:"Created",400:"Bad Request",422:"Unprocessable Entity"}[c])+"</span>";const p=$("#vr");p.style.display="block";p.textContent=JSON.stringify(d,null,2)};
+
+/* login */
+let regs=[];
+$("#pr1").onclick=()=>{const salt=Math.random().toString(36).slice(2,10);regs.push("user"+(regs.length+1)+": $demo$"+salt+"$"+hsh(salt+$("#pw").value));if(regs.length>4)regs.shift();$("#pho").textContent=regs.join("\n")+"\n\nSame password, different stored values. Attackers cannot reuse one cracked hash.";};
+picker("#lf","#lfo",[
+{label:"1 Register",t:"POST /auth/register with email and password. The server stores the salted hash, never the password."},
+{label:"2 Login",t:"POST /auth/login. The server hashes your attempt, compares it, and returns a signed JWT with a short expiry."},
+{label:"3 Call API",t:"GET /me with Authorization: Bearer <token>. A middleware verifies the signature and expiry, then loads the user. Failure gives 401."},
+{label:"4 Check owner",t:"DELETE /books/7 checks the book belongs to you. Logged in but not the owner gives 403."}
+],i=>"<b>"+i.label+".</b> "+i.t);
+
+/* tests */
+const BUGS=[["b1","DELETE returns 200 instead of 204","DELETE returns 204",["204","200"]],["b2","GET missing book returns 200 with null","GET /books/999 returns 404",["404","200"]],["b3","POST without title is accepted","POST without title returns 422",["422","201"]],["b4","List ignores the limit parameter","GET /books?limit=1 returns 1 item",["1 item","3 items"]]];
+BUGS.forEach(b=>{$("#bugs").insertAdjacentHTML("beforeend","<label style='display:block'><input type='checkbox' class='bg' value='"+b[0]+"'> Bug: "+b[1]+"</label>")});
+$("#tr").onclick=()=>{const on=$$(".bg").filter(c=>c.checked).map(c=>c.value);
+ let h="<div class='g2'>✓ GET /books returns 200</div><div class='g2'>✓ POST valid book returns 201</div>",f=0;
+ BUGS.forEach(b=>{if(on.includes(b[0])){f++;h+="<div class='g5'>✗ "+b[2]+" <span class='muted'>(expected "+b[3][0]+", got "+b[3][1]+")</span></div>"}else h+="<div class='g2'>✓ "+b[2]+"</div>"});
+ $("#tres").innerHTML=h+"<div style='margin-top:8px'><b>"+(6-f)+" passed, "+f+" failed</b></div>"};
+
+/* deploy */
+const DL=[["HTTPS enabled everywhere"],["Secrets in environment variables, not in code"],["Debug mode turned off"],["CORS limited to your real frontend origin"],["Rate limiting on login and public routes"],["Database backups and migrations"],["Logging and error monitoring"],["A /health endpoint for uptime checks"]];
+DL.forEach((d,i)=>{$("#dl").insertAdjacentHTML("beforeend","<label style='display:block;margin:4px 0'><input type='checkbox' class='dk'> "+d[0]+"</label>")});
+function dv(){const n=$$(".dk").filter(c=>c.checked).length;$("#db3").style.width=(n/8*100)+"%";$("#dv").textContent=n+" of 8 done. "+(n===8?"Ready to launch.":n>=5?"Nearly there. Finish the rest before real users arrive.":"Not ready for real users yet.")}
+$$(".dk").forEach(c=>c.onchange=dv);dv();
+
+/* quiz */
+const Q=[["What does a parameterized query prevent?",["Slow queries","SQL injection","Duplicate rows","CORS errors"],1,"Parameters are sent as data, so user text can never change the SQL itself."],["A client sends a body missing the required title. Best response?",["500","422 with field errors","200","404"],1,"The request is understood but invalid, so return 422 (or 400) with clear messages."],["How should passwords be stored?",["Plain text","Encrypted with a shared key","As a salted hash","In the JWT"],2,"Salted hashes cannot be reversed, and the salt stops one cracked hash from unlocking others."],["Logged in, but deleting someone else’s book. Which status?",["401","403","404","422"],1,"403 Forbidden: the server knows you, but you lack permission."],["Which SQL statement matches POST /books?",["SELECT","INSERT","UPDATE","DELETE"],1,"POST creates, which is INSERT. GET is SELECT, PATCH is UPDATE, DELETE is DELETE."],["Before launching you should…",["Turn debug on","Hard-code secrets","Use HTTPS and env vars","Allow every origin"],2,"Use HTTPS, keep secrets in environment variables, turn debug off and restrict CORS."]];
+let score=0,ans=0;
+function quiz(){score=0;ans=0;$("#qres").style.display="none";$("#qre").style.display="none";const z=$("#qz");z.innerHTML="";
+ Q.forEach((q,qi)=>{const c=document.createElement("div");c.className="card";c.innerHTML="<b>"+(qi+1)+". "+q[0]+"</b>";
+  const fb=document.createElement("p");fb.className="muted";fb.style.margin="8px 0 0";
+  q[1].forEach((o,oi)=>{const b=document.createElement("button");b.className="opt";b.textContent=o;
+   b.onclick=()=>{if(c.dataset.a)return;c.dataset.a=1;ans++;const ok=oi===q[2];if(ok)score++;
+    b.classList.add(ok?"right":"wrong");if(!ok)c.querySelectorAll(".opt")[q[2]].classList.add("right");
+    fb.textContent=(ok?"Correct. ":"Not quite. ")+q[3];
+    if(ans===Q.length){const r=$("#qres");r.style.display="block";r.innerHTML="<b>Score: "+score+" / "+Q.length+"</b><p style='margin:6px 0 0'>"+(score>=5?"Excellent. Try building your own API next.":score>=3?"Good start. Revisit the lessons you missed.":"Keep going. Reread the lessons and try again.")+"</p>";$("#qre").style.display="inline-block"}};
+   c.appendChild(b)});c.appendChild(fb);z.appendChild(c)})}
+$("#qre").onclick=quiz;quiz();
+
+/* start */
+const h=(location.hash||"").slice(1);go(Math.max(0,ids.indexOf(h)),true);
+</script>
+</body>
+</html>

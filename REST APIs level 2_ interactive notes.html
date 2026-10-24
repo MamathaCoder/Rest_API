@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>REST APIs level 2: interactive notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#eef2f5;--surface:#fff;--ink:#14232e;--muted:#566873;--line:#d3dde4;--accent:#0b6e8a;--accent-ink:#fff;--ok:#1c7a4a;--warn:#a56200;--bad:#b3261e;--code-bg:#0f2230;--code-ink:#d6e7f0;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1a22;--surface:#15262f;--ink:#e6eef3;--muted:#9bb0bc;--line:#26404d;--accent:#5cc3df;--accent-ink:#06222c;--ok:#5fd08f;--warn:#e8b04a;--bad:#ff8a80;--code-bg:#0a141a;--code-ink:#d6e7f0;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1a22;--surface:#15262f;--ink:#e6eef3;--muted:#9bb0bc;--line:#26404d;--accent:#5cc3df;--accent-ink:#06222c;--ok:#5fd08f;--warn:#e8b04a;--bad:#ff8a80;--code-bg:#0a141a;--code-ink:#d6e7f0;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "IBM Plex Sans",system-ui,sans-serif}
+code,pre,.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 48px}
+header{padding:28px 0 8px}
+h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.15;margin:0 0 6px;font-weight:600}
+.sub{color:var(--muted);margin:0 0 14px;max-width:60ch}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.pl{font-size:.85rem;color:var(--muted);margin-top:6px}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:10px 0;display:flex;gap:6px;overflow-x:auto;border-bottom:1px solid var(--line)}
+nav button{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:999px;font:inherit;font-size:.88rem;cursor:pointer}
+nav button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+nav button.done::after{content:" ✓"}
+section{display:none;padding-top:20px}
+section.on{display:block}
+h2{font-size:1.45rem;margin:0 0 8px}
+h3{font-size:1.05rem;margin:22px 0 6px}
+p{margin:0 0 12px;max-width:68ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;margin:14px 0}
+.tip{border-left:4px solid var(--accent);background:var(--surface);padding:10px 14px;margin:14px 0;border-radius:0 8px 8px 0}
+pre{background:var(--code-bg);color:var(--code-ink);padding:14px;border-radius:8px;overflow-x:auto;font-size:.85rem;line-height:1.5;margin:10px 0}
+code{background:var(--line);padding:1px 5px;border-radius:4px;font-size:.88em}
+pre code{background:none;padding:0}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:8px;font:500 .9rem "IBM Plex Mono",monospace;cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chip:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.g2{color:var(--ok)}.g3{color:var(--accent)}.g4{color:var(--warn)}.g5{color:var(--bad)}
+.k{cursor:pointer;border-bottom:2px dotted var(--accent)}
+.k.on{background:rgba(92,195,223,.25)}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+td,th{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.scroll{overflow-x:auto}
+.foot{display:flex;justify-content:space-between;gap:8px;margin-top:28px;flex-wrap:wrap}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);padding:8px 16px;border-radius:8px;font:500 .95rem "IBM Plex Sans",sans-serif;cursor:pointer}
+.btn.alt{background:transparent;color:var(--accent)}
+.pg{display:grid;grid-template-columns:1fr;gap:10px}
+.pg label{font-size:.85rem;color:var(--muted)}
+.pg input,.pg select,.pg textarea{width:100%;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font:.9rem "IBM Plex Mono",monospace}
+.line{display:grid;grid-template-columns:110px 1fr;gap:8px}
+.badge{display:inline-block;padding:2px 10px;border-radius:6px;font:500 .9rem "IBM Plex Mono",monospace;border:1px solid currentColor}
+.opt{display:block;width:100%;text-align:left;margin:6px 0;padding:10px 12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;font:inherit;cursor:pointer}
+.opt.right{border-color:var(--ok);background:rgba(40,160,100,.15)}
+.opt.wrong{border-color:var(--bad);background:rgba(220,60,50,.13)}
+.muted{color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+.dots{display:flex;gap:8px;margin:8px 0}.dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--accent)}.dot.f{background:var(--accent)}
+.log{font:.85rem/1.6 "IBM Plex Mono",monospace;max-height:220px;overflow:auto}
+ul.ids{list-style:none;display:flex;flex-wrap:wrap;gap:6px;padding:0;margin:8px 0}ul.ids li{border:1px solid var(--line);background:var(--surface);padding:2px 10px;border-radius:6px;font:.9rem "IBM Plex Mono",monospace}ul.ids li.dup{border-color:var(--bad);color:var(--bad)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:560px){.two{grid-template-columns:1fr}}
+.tk{word-break:break-all;font:.85rem/1.5 "IBM Plex Mono",monospace}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>REST APIs level 2: interactive notes</h1>
+<p class="sub">Nine hands-on lessons on what real APIs need after the basics. Click, break things and take the quiz.</p>
+<div class="bar"><i id="bar"></i></div>
+<div class="pl" id="pl"></div>
+</header>
+<nav id="nav" aria-label="Lessons"></nav>
+
+
+<section id="roadmap" data-t="Roadmap">
+<h2>Your next steps</h2>
+<p>You know the basics. These topics are what separate a demo API from a real one. Pick one to see why it matters.</p>
+<div class="row" id="rm"></div>
+<div class="card" id="rmo">Pick a topic.</div>
+<div class="tip">Later topics worth exploring: OpenAPI/Swagger docs, API versioning, GraphQL, API gateways, testing with Postman or pytest, and deploying your API.</div>
+</section>
+
+<section id="jwt" data-t="JWT">
+<h2>JWT tokens</h2>
+<p>After login, the server hands you a <b>JSON Web Token</b>. It has three parts joined by dots: header, payload and signature. Anyone can <i>read</i> the payload, but only the server can <i>sign</i> it, so changing it breaks the signature.</p>
+<div class="card"><div class="tk" id="jtok"></div>
+<div class="row"><button class="btn alt" id="jn">New token</button><button class="btn alt" id="jt">Tamper: make me admin</button><button class="btn alt" id="je">Expire it</button></div>
+<div class="two"><pre id="jh" style="margin:0"></pre><pre id="jp" style="margin:0"></pre></div>
+<p id="jv" style="margin:10px 0 0"></p></div>
+<div class="tip">The signature here uses a toy hash for the demo. Real servers use HMAC or RSA. Never put passwords in a JWT: the payload is readable.</div>
+</section>
+
+<section id="paging" data-t="Pagination">
+<h2>Pagination</h2>
+<p><b>Offset</b> paging says “skip 10, give me 5”. <b>Cursor</b> paging says “give me 5 after this item”. Load two pages, add a new book in between, then load again.</p>
+<div class="row"><button class="chip on" id="po">Offset mode</button><button class="chip" id="pc">Cursor mode</button></div>
+<div class="row"><button class="btn" id="pn">Load next page</button><button class="btn alt" id="pa">New book arrives</button><button class="btn alt" id="pr0">Reset</button></div>
+<div class="card"><pre id="preq" style="margin-top:0">Press “Load next page”.</pre><ul class="ids" id="plist"></ul><p class="muted" id="pnote" style="margin:0">Red means you already saw this item: a duplicate.</p></div>
+<div class="tip">Offset is simple but drifts when data changes and gets slow on huge tables. Cursor stays stable. Use it for feeds and big lists.</div>
+</section>
+
+<section id="cache" data-t="Caching">
+<h2>Caching with ETag</h2>
+<p>The server tags each version of a resource with an <code>ETag</code>. Next time you ask, send it back with <code>If-None-Match</code>. If nothing changed, you get a tiny <code>304</code> instead of the whole body.</p>
+<div class="row"><button class="btn" id="cr">GET /books</button><button class="btn alt" id="cc">Change data on server</button><button class="btn alt" id="cx">Clear my cache</button></div>
+<div class="card log" id="clog">No requests yet.</div>
+<div class="tip"><code>Cache-Control: max-age=60</code> goes further: the client skips the request entirely for 60 seconds.</div>
+</section>
+
+<section id="cors" data-t="CORS">
+<h2>CORS</h2>
+<p>Browsers block a page from reading responses from a different origin unless that server allows it. Set up a scenario and see the outcome. Note: CORS is enforced by the <b>browser</b>, not the server.</p>
+<div class="card pg">
+<div><label for="co">Your web page runs on</label><select id="co"><option>https://myapp.com</option><option>https://evil.com</option></select></div>
+<div><label for="ca">Server sends Access-Control-Allow-Origin</label><select id="ca"><option value="">(header missing)</option><option>https://myapp.com</option><option value="*">*</option></select></div>
+<div><label for="cm">Request</label><select id="cm"><option>GET</option><option>DELETE</option></select></div>
+<label><input type="checkbox" id="cd"> Server allows DELETE in Access-Control-Allow-Methods</label>
+</div>
+<div class="card" id="cout"></div>
+</section>
+
+<section id="rate" data-t="Rate limiting">
+<h2>Rate limiting</h2>
+<p>A <b>token bucket</b> allows bursts but caps the average. This bucket holds 5 tokens and refills 1 per second. Each request costs one token.</p>
+<div class="card"><div class="dots" id="dots"></div><button class="btn" id="rs">Send request</button>
+<p id="rres" style="margin:10px 0 0" class="muted">Spam the button.</p></div>
+<div class="tip">On <code>429 Too Many Requests</code>, wait for <code>Retry-After</code> seconds. Good clients back off: wait 1s, then 2s, then 4s.</div>
+</section>
+
+<section id="idem" data-t="Idempotency">
+<h2>Idempotency keys</h2>
+<p>A network drops the response to a payment. Did it go through? The client retries, and a naive server charges twice. An <code>Idempotency-Key</code> lets the server recognize the repeat.</p>
+<div class="card"><label><input type="checkbox" id="ik"> Send an Idempotency-Key header</label>
+<div class="row"><button class="btn" id="ip">Pay ₹500</button><button class="btn alt" id="ir">Response lost: retry same request</button><button class="btn alt" id="ix">Reset</button></div>
+<div class="log" id="ilog">No payments yet.</div><p id="itot" style="margin:8px 0 0"><b>Charged: ₹0</b></p></div>
+<div class="tip">GET, PUT and DELETE are naturally idempotent. POST is not, so payment APIs like Stripe use keys.</div>
+</section>
+
+<section id="hooks" data-t="Webhooks">
+<h2>Webhooks vs polling</h2>
+<p>Polling means asking “is it done yet?” again and again. A <b>webhook</b> flips it: the server calls your URL when something happens. A payment completes at second 6.</p>
+<div class="row"><button class="btn" id="wa">Advance 1 second</button><button class="btn alt" id="wr">Reset</button><span id="wt" class="muted">t = 0s</span></div>
+<div class="two"><div class="card log" id="wp"><b>Polling</b></div><div class="card log" id="ww"><b>Webhook</b></div></div>
+<div class="tip">Webhook receivers must be public, answer fast with <code>200</code>, and verify the signature header so nobody can fake events.</div>
+</section>
+<section id="quiz" data-t="Quiz">
+<h2>Quiz</h2>
+<p>Six questions. Click an answer.</p>
+<div id="qz"></div>
+<div class="card" id="qres" style="display:none"></div>
+<button class="btn alt" id="qre" style="display:none">Try again</button>
+</section><div class="foot"><button class="btn alt" id="prev">Back</button><button class="btn alt" id="done">Mark as done</button><button class="btn" id="next">Next</button></div>
+</div>
+
+<script>const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+let doneSet=new Set();
+try{doneSet=new Set(JSON.parse(localStorage.getItem("restnotes2")||"[]"))}catch(e){}
+const save=()=>{try{localStorage.setItem("restnotes2",JSON.stringify([...doneSet]))}catch(e){}};
+const secs=$$("section");const ids=secs.map(s=>s.id);
+let cur=0;
+
+/* nav */
+const nav=$("#nav");
+secs.forEach((s,i)=>{const b=document.createElement("button");b.textContent=s.dataset.t;b.onclick=()=>go(i);nav.appendChild(b)});
+function go(i,noHash){
+  cur=Math.max(0,Math.min(ids.length-1,i));
+  secs.forEach((s,j)=>s.classList.toggle("on",j===cur));
+  [...nav.children].forEach((b,j)=>{b.classList.toggle("on",j===cur);b.classList.toggle("done",doneSet.has(ids[j]))});
+  $("#done").textContent=doneSet.has(ids[cur])?"Done ✓ (undo)":"Mark as done";
+  $("#prev").style.visibility=cur?"visible":"hidden";
+  $("#next").style.visibility=cur<ids.length-1?"visible":"hidden";
+  const n=doneSet.size;$("#bar").style.width=(n/ids.length*100)+"%";
+  $("#pl").textContent=n+" of "+ids.length+" lessons done";
+  if(!noHash){try{history.replaceState(null,"","#"+ids[cur])}catch(e){}}
+  window.scrollTo(0,0);
+}
+$("#prev").onclick=()=>go(cur-1);$("#next").onclick=()=>go(cur+1);
+$("#done").onclick=()=>{const id=ids[cur];doneSet.has(id)?doneSet.delete(id):doneSet.add(id);save();go(cur,true);if(doneSet.has(id)&&cur<ids.length-1)go(cur+1)};
+
+/* generic picker */
+function picker(rowSel,outSel,items,render,cls){
+  const row=$(rowSel),out=$(outSel);
+  items.forEach((it,i)=>{const b=document.createElement("button");b.className="chip "+(cls?cls(it):"");b.textContent=it.label;
+    b.onclick=()=>{[...row.children].forEach(c=>c.classList.remove("on"));b.classList.add("on");out.innerHTML=render(it)};row.appendChild(b)});
+  return ()=>row.children[0].click();
+}
+
+
+/* roadmap */
+picker("#rm","#rmo",[
+{label:"JWT",t:"Stateless login. The token proves who you are on every request."},
+{label:"Pagination",t:"Returning everything is slow and costly. Pages keep responses small."},
+{label:"Caching",t:"Skip repeat work. Faster for users, cheaper for servers."},
+{label:"CORS",t:"The most common “it works in Postman but not in my browser” error."},
+{label:"Rate limiting",t:"Protects your API from abuse and accidents."},
+{label:"Idempotency",t:"Makes retries safe, especially for money."},
+{label:"Webhooks",t:"Get notified instead of polling."}
+],i=>"<b>"+i.label+".</b> "+i.t);
+
+/* jwt */
+const b64=o=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/=/g,"").replace(/\+/g,"-").replace(/\//g,"_");
+const ub=s=>{s=s.replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";return JSON.parse(decodeURIComponent(escape(atob(s))))};
+const hsh=s=>{let h=5381;for(const c of s)h=((h<<5)+h+c.charCodeAt(0))>>>0;return h.toString(16)};
+const SECRET="server-secret",jh={alg:"HS256",typ:"JWT"};
+let jp,tok;
+const sign=p=>{const a=b64(jh)+"."+b64(p);return a+"."+hsh(a+SECRET)};
+function jnew(){jp={sub:"42",name:"Asha",role:"user",exp:Math.floor(Date.now()/1000)+3600};tok=sign(jp);jr()}
+function jr(){
+ const [h,p,s]=tok.split(".");
+ $("#jtok").innerHTML='<span style="color:var(--bad)">'+h+'</span>.<span style="color:var(--warn)">'+p+'</span>.<span style="color:var(--accent)">'+s+'</span>';
+ const pl=ub(p);$("#jh").textContent=JSON.stringify(ub(h),null,2);$("#jp").textContent=JSON.stringify(pl,null,2);
+ const ok=hsh(h+"."+p+SECRET)===s,exp=pl.exp<Date.now()/1000;
+ $("#jv").innerHTML=!ok?"<span class='g5'>✗ 401 Unauthorized.</span> Signature does not match, so the payload was tampered with.":exp?"<span class='g4'>✗ 401 Unauthorized.</span> Signature is valid, but the token has expired.":"<span class='g2'>✓ 200 OK.</span> Signature valid and not expired. Hello, "+esc(pl.name)+" ("+esc(pl.role)+").";
+}
+$("#jn").onclick=jnew;
+$("#jt").onclick=()=>{const s=tok.split(".")[2];tok=b64(jh)+"."+b64({...ub(tok.split(".")[1]),role:"admin"})+"."+s;jr()};
+$("#je").onclick=()=>{jp={...jp,exp:Math.floor(Date.now()/1000)-60};tok=sign(jp);jr()};
+jnew();
+
+/* pagination */
+let pm="offset",items,seen,off,pcur;
+function pinit(){items=[];for(let i=50;i>=1;i--)items.push(i);seen=new Set();off=0;pcur=null;$("#plist").innerHTML="";$("#preq").textContent="Press “Load next page”."}
+function pnext(){
+ let page,req;
+ if(pm==="offset"){page=items.slice(off,off+5);req="GET /books?limit=5&offset="+off;off+=5}
+ else{req="GET /books?limit=5"+(pcur?"&after="+pcur:"");page=items.filter(i=>pcur===null||i<pcur).slice(0,5);if(page.length)pcur=page[page.length-1]}
+ $("#preq").textContent=req+"\n→ ids: "+page.join(", ");
+ page.forEach(i=>{const li=document.createElement("li");li.textContent="#"+i;if(seen.has(i))li.className="dup";seen.add(i);$("#plist").appendChild(li)});
+}
+$("#pn").onclick=pnext;
+$("#pa").onclick=()=>{items.unshift(items[0]+1);$("#pnote").textContent="Book #"+items[0]+" was added at the top. Load the next page now."};
+$("#pr0").onclick=pinit;
+[["#po","offset"],["#pc","cursor"]].forEach(([s,m])=>$(s).onclick=()=>{pm=m;$("#po").classList.toggle("on",m==="offset");$("#pc").classList.toggle("on",m==="cursor");pinit()});
+pinit();
+
+/* caching */
+let sv=1,cet=null;
+const cl=(h,t)=>{const l=$("#clog");if(l.dataset.e!=="1"){l.innerHTML="";l.dataset.e="1"}l.insertAdjacentHTML("afterbegin","<div>"+t+"</div>")};
+$("#cr").onclick=()=>{
+ const et='"v'+sv+'"';
+ const hd=cet?" <span class='muted'>(If-None-Match: "+cet+")</span>":" <span class='muted'>(no cache yet)</span>";
+ if(cet===et)cl(0,"GET /books"+hd+" → <span class='g3'>304 Not Modified</span>, 0 KB. Used cached copy.");
+ else{cet=et;cl(0,"GET /books"+hd+" → <span class='g2'>200 OK</span>, 12 KB, ETag: "+et)}
+};
+$("#cc").onclick=()=>{sv++;cl(0,"<span class='g4'>Server data changed. New ETag is &quot;v"+sv+"&quot;.</span>")};
+$("#cx").onclick=()=>{cet=null;cl(0,"<span class='muted'>Local cache cleared.</span>")};
+
+/* cors */
+function cors(){
+ const o=$("#co").value,a=$("#ca").value,m=$("#cm").value,am=$("#cd").checked,oo=a==="*"||a===o;
+ let s="<ol style='margin:0;padding-left:20px'>",v;
+ if(m==="DELETE"){
+  s+="<li>Browser sends a <b>preflight</b>: <code>OPTIONS</code> with <code>Origin: "+o+"</code> and <code>Access-Control-Request-Method: DELETE</code>.</li>";
+  if(!oo||!am){s+="<li>Server reply does not allow "+(!oo?"this origin":"DELETE")+".</li></ol>";v="<span class='g5'>✗ Blocked.</span> The real DELETE is never sent.";$("#cout").innerHTML=s+"<p style='margin:8px 0 0'>"+v+"</p>";return}
+  s+="<li>Preflight approved.</li>";
+ }
+ s+="<li>Browser sends <code>"+m+"</code> with <code>Origin: "+o+"</code>.</li><li>Server responds with "+(a?"<code>Access-Control-Allow-Origin: "+a+"</code>":"no Allow-Origin header")+".</li></ol>";
+ v=oo?"<span class='g2'>✓ Allowed.</span> Your JavaScript can read the response.":"<span class='g5'>✗ Blocked.</span> The request reached the server, but the browser hides the response from your JavaScript. Fix it on the server by sending the right header.";
+ $("#cout").innerHTML=s+"<p style='margin:8px 0 0'>"+v+"</p>";
+}
+["#co","#ca","#cm","#cd"].forEach(s=>$(s).onchange=cors);cors();
+
+/* rate limit */
+let tk=5;
+function dr(){$("#dots").innerHTML=Array.from({length:5},(_,i)=>'<span class="dot'+(i<tk?" f":"")+'"></span>').join("")}
+$("#rs").onclick=()=>{
+ if(tk>0){tk--;$("#rres").innerHTML="<span class='badge g2'>200 OK</span> X-RateLimit-Remaining: "+tk}
+ else $("#rres").innerHTML="<span class='badge g4'>429 Too Many Requests</span> Retry-After: 1";
+ dr()};
+setInterval(()=>{if(tk<5){tk++;dr()}},1000);dr();
+
+/* idempotency */
+let led=[],ks={},lk=null,kn=0,lastCall=false;
+function ilog(t){const l=$("#ilog");if(!led.length&&!l.dataset.e){l.innerHTML="";l.dataset.e=1}l.insertAdjacentHTML("beforeend","<div>"+t+"</div>");$("#itot").innerHTML="<b>Charged: ₹"+led.length*500+"</b>"+(led.length>1?" <span class='g5'>(double charge!)</span>":"")}
+function isend(k){
+ if(k&&ks[k]){ilog("POST /pay, key "+k+" → <span class='g2'>200</span> saved result replayed. No new charge.");return}
+ led.push(500);if(k)ks[k]=1;ilog("POST /pay"+(k?", key "+k:"")+" → <span class='g2'>201</span> charged ₹500");
+}
+$("#ip").onclick=()=>{lk=$("#ik").checked?"key-"+(++kn):null;lastCall=true;isend(lk)};
+$("#ir").onclick=()=>{if(!lastCall){ilog("<span class='muted'>Press Pay first.</span>");return}isend(lk)};
+$("#ix").onclick=()=>{led=[];ks={};lk=null;lastCall=false;const l=$("#ilog");l.innerHTML="No payments yet.";delete l.dataset.e;$("#itot").innerHTML="<b>Charged: ₹0</b>"};
+
+/* webhooks */
+let wt=0,pcount=0;
+function wr(){wt=0;pcount=0;$("#wp").innerHTML="<b>Polling</b> <span class='muted'>(0 requests)</span>";$("#ww").innerHTML="<b>Webhook</b> <span class='muted'>(0 requests)</span>";$("#wt").textContent="t = 0s";$("#wa").disabled=false}
+$("#wa").onclick=()=>{
+ wt++;$("#wt").textContent="t = "+wt+"s";
+ if(wt<6){pcount++;$("#wp").insertAdjacentHTML("beforeend","<div>GET /payments/9 → pending</div>")}
+ else if(wt===6){pcount++;$("#wp").insertAdjacentHTML("beforeend","<div class='g2'>GET /payments/9 → paid</div>");$("#ww").insertAdjacentHTML("beforeend","<div class='g2'>POST /my-webhook {payment.paid}</div>");$("#wa").disabled=true;
+  $("#wp").querySelector("span").textContent="("+pcount+" requests, "+(pcount-1)+" wasted)";$("#ww").querySelector("span").textContent="(1 request, 0 wasted)"}
+ if(wt<6)$("#wp").querySelector("span").textContent="("+pcount+" requests)";
+};
+$("#wr").onclick=wr;wr();
+
+/* quiz */
+const Q=[["Why does a tampered JWT get rejected?",["Payload is encrypted","Signature no longer matches","Tokens are one use","The header changed"],1,"The signature is computed over the payload with a secret key. Change the payload and it stops matching."],["Offset pagination shows duplicates when…",["Page size is 5","New rows are inserted at the top","You use HTTPS","The cursor is null"],1,"Inserts shift every row down, so the next offset repeats an item. Cursors avoid this."],["The server replies 304. What do you do?",["Retry","Use your cached copy","Log in again","Report a bug"],1,"304 Not Modified means your cached version is still current, with no body sent."],["Your browser blocks an API call but Postman works. Likely cause?",["Wrong method","CORS headers missing","Server is down","Bad JSON"],1,"Postman does not enforce CORS. Browsers do, so the server must send Access-Control headers."],["Which status means you are being rate limited?",["401","404","429","503"],2,"429 Too Many Requests, usually with a Retry-After header."],["What stops a retried payment from charging twice?",["Idempotency-Key","Longer timeout","Using PUT","HTTPS"],0,"The server remembers the key and replays the first result instead of charging again."]];
+let score=0,ans=0;
+function quiz(){score=0;ans=0;$("#qres").style.display="none";$("#qre").style.display="none";const z=$("#qz");z.innerHTML="";
+ Q.forEach((q,qi)=>{const c=document.createElement("div");c.className="card";c.innerHTML="<b>"+(qi+1)+". "+q[0]+"</b>";
+  const fb=document.createElement("p");fb.className="muted";fb.style.margin="8px 0 0";
+  q[1].forEach((o,oi)=>{const b=document.createElement("button");b.className="opt";b.textContent=o;
+   b.onclick=()=>{if(c.dataset.a)return;c.dataset.a=1;ans++;const ok=oi===q[2];if(ok)score++;
+    b.classList.add(ok?"right":"wrong");if(!ok)c.querySelectorAll(".opt")[q[2]].classList.add("right");
+    fb.textContent=(ok?"Correct. ":"Not quite. ")+q[3];
+    if(ans===Q.length){const r=$("#qres");r.style.display="block";r.innerHTML="<b>Score: "+score+" / "+Q.length+"</b><p style='margin:6px 0 0'>"+(score>=5?"Excellent. Try building your own API next.":score>=3?"Good start. Revisit the lessons you missed.":"Keep going. Reread the lessons and try again.")+"</p>";$("#qre").style.display="inline-block"}};
+   c.appendChild(b)});c.appendChild(fb);z.appendChild(c)})}
+$("#qre").onclick=quiz;quiz();
+
+/* start */
+const h=(location.hash||"").slice(1);go(Math.max(0,ids.indexOf(h)),true);
+</script>
+</body>
+</html>
